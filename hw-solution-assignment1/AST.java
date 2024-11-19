@@ -79,7 +79,7 @@ class UseDef extends Expr {
     }
 
     @Override
-    Boolean eval(Environment env) {
+    Boolean eval(Environment env) {z
         Environment newEnv = new Environment(env);
 
         Def def = env.getDef(f);
@@ -112,7 +112,7 @@ class Signal extends Expr {
 class Def extends AST {
     // Definition of a function
     // Example: def xor(A,B) = A * /B + /A * B
-    String f; // function name, e.g. "xor"
+    String f; // function na me, e.g. "xor"
     List<String> args; // formal arguments, e.g. [A,B]
     Expr e; // body of the definition, e.g. A * /B + /A * B
 
@@ -231,6 +231,8 @@ class Circuit extends AST {
     }
 
     void initialize(Environment env) {
+        simoutputs = new ArrayList<>();
+
         for (Trace trace : siminputs) {
             if (trace.values.length == 0) {
                 error("values empty for signal " + trace.signal);
@@ -238,7 +240,11 @@ class Circuit extends AST {
             if (!inputs.contains(trace.signal)) {
                 error("no input signal exists for siminput " + trace.signal);
             }
+
+            // Initialize signal value and add its trace
             env.setVariable(trace.signal, trace.values[0]);
+            simoutputs.add(new Trace(trace.signal, new Boolean[simlength]));
+            simoutputs.get(simoutputs.size() - 1).values[0] = trace.values[0];
         }
 
         latchesInit(env);
@@ -247,8 +253,17 @@ class Circuit extends AST {
             update.eval(env);
         }
 
+        // Record initial values for outputs
+        for (String output : outputs) {
+            Boolean value = env.getVariable(output);
+            Trace outputTrace = new Trace(output, new Boolean[simlength]);
+            outputTrace.values[0] = value;
+            simoutputs.add(outputTrace);
+        }
+
         System.out.println(env.toString());
     }
+
 
     void nextCycle(Environment env, int i) {
         for (Trace trace : siminputs) {
@@ -256,6 +271,13 @@ class Circuit extends AST {
                 error("values empty for signal " + trace.signal + " for cycle " + i);
             }
             env.setVariable(trace.signal, trace.values[i]);
+
+            // Update trace values for inputs
+            for (Trace simoutput : simoutputs) {
+                if (simoutput.signal.equals(trace.signal)) {
+                    simoutput.values[i] = trace.values[i];
+                }
+            }
         }
 
         latchesUpdate(env);
@@ -264,16 +286,43 @@ class Circuit extends AST {
             update.eval(env);
         }
 
+        // Update trace values for outputs
+        for (String output : outputs) {
+            Boolean value = env.getVariable(output);
+            for (Trace simoutput : simoutputs) {
+                if (simoutput.signal.equals(output)) {
+                    simoutput.values[i] = value;
+                }
+            }
+        }
+
         System.out.println(env.toString());
     }
+
 
     void runSimulator() {
         Environment env = new Environment(definitions);
 
         initialize(env);
 
-        for (int i = 0; i < simlength; i++) {
+        for (int i = 1; i < simlength; i++) {
             nextCycle(env, i);
         }
+
+        printTraces();
     }
+
+
+    void printTraces() {
+        System.out.println("Simulation Traces:");
+        for (Trace trace : simoutputs) {
+            StringBuilder output = new StringBuilder();
+            for (Boolean value : trace.values) {
+                output.append(value ? "1" : "0");
+            }
+            output.append(" ").append(trace.signal);
+            System.out.println(output.toString());
+        }
+    }
+
 }
