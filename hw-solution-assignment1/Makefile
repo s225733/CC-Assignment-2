@@ -21,14 +21,11 @@ main.class:	$(SRCFILES) $(GENERATED)
 	javac $(classpathoption) $(SRCFILES) $(GENERATED) 
 
 run:	main.class
-	java $(classpathoption) main 01-hello-world.hw  > 01.html
-	java $(classpathoption) main 01b-hello-world-withdef.hw  > 01b.html
-	java $(classpathoption) main 02-trafiklys-minimal.hw  > 02.html
-	java $(classpathoption) main 03-trafiklys.hw  > 03.html
-	java $(classpathoption) main 04-von-Neumann.hw  > 04.html
-
-trafiklys:	main.class
-	java $(classpathoption) main 02-trafiklys-minimal.hw  > 02.html
+	java $(classpathoption) main 01-hello-world.hw
+	java $(classpathoption) main 01b-hello-world-withdef.hw
+	java $(classpathoption) main 02-trafiklys-minimal.hw
+	java $(classpathoption) main 03-trafiklys.hw
+	java $(classpathoption) main 04-von-Neumann.hw
 
 grun:	hwLexer.class hwParser.class 01-hello-world.hw
 	$(grun) impl start -gui -tokens 01-hello-world.hw
