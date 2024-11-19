@@ -80,8 +80,15 @@ class UseDef extends Expr {
 
     @Override
     Boolean eval(Environment env) {
-        error("usedef not implemented ;)");
-        return false;
+        Environment newEnv = new Environment(env);
+
+        Def def = env.getDef(f);
+
+        for(int i = 0; i < args.size(); i++){
+            newEnv.setVariable(def.args.get(i), args.get(i).eval(env));
+        }
+
+        return def.e.eval(newEnv);
     }
 }
 
