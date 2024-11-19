@@ -215,6 +215,8 @@ class Circuit extends AST {
         this.definitions = definitions;
         this.updates = updates;
         this.siminputs = siminputs;
+
+        this.simlength = siminputs.get(0).values.length;
     }
 
     void latchesInit(Environment env) {
@@ -247,7 +249,15 @@ class Circuit extends AST {
             update.eval(env);
         }
 
-        System.out.println(env.toString());
+        simoutputs = new ArrayList<Trace>();
+
+        for (String output : outputs) {
+            simoutputs.add(new Trace(output, new Boolean[simlength]));
+        }
+
+        for (Trace trace : simoutputs) {
+            trace.values[0] = env.getVariable(trace.signal);
+        }
     }
 
     void nextCycle(Environment env, int i) {
@@ -264,7 +274,9 @@ class Circuit extends AST {
             update.eval(env);
         }
 
-        System.out.println(env.toString());
+        for (Trace trace : simoutputs) {
+            trace.values[i] = env.getVariable(trace.signal);
+        }
     }
 
     void runSimulator() {
@@ -274,6 +286,13 @@ class Circuit extends AST {
 
         for (int i = 0; i < simlength; i++) {
             nextCycle(env, i);
+        }
+
+        for (Trace trace : siminputs) {
+            System.out.println(trace.toString());
+        }
+        for (Trace trace : simoutputs) {
+            System.out.println(trace.toString());
         }
     }
 }
