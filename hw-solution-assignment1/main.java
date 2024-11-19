@@ -54,6 +54,8 @@ public class main {
 	    simulation of the given hardware for given simulation
 	    inputs. The method for starting the simulation should be
 	    called here for the Circuit p. */
+
+		p.runSimulator(new Environment());
     }
 }
 
