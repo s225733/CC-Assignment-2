@@ -229,6 +229,9 @@ class Circuit extends AST {
             if (trace.values.length == 0) {
                 error("values empty for signal " + trace.signal);
             }
+            if (!inputs.contains(trace.signal)) {
+                error("no input signal exists for siminput " + trace.signal);
+            }
             env.setVariable(trace.signal, trace.values[0]);
         }
 
