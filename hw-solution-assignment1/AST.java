@@ -231,7 +231,6 @@ class Circuit extends AST {
     }
 
     void initialize(Environment env) {
-        // TODO: if the siminput is not defined for any input signal, stop with an error
         for (Trace trace : siminputs) {
             if (trace.values.length == 0) {
                 error("values empty for signal " + trace.signal);
